@@ -17,16 +17,9 @@ Route::get('/', function () {
     return view('welcome');
 })->middleware('language');
 
-Route::resource('posts', 'PostController');
+Auth::routes(['verify' => true]);
 
-Route::get('/users', function(){
-    dd(App\User::with(['posts'])->first()->posts->first()->id);
-});
-
-// Importación para trabajo con query builder
-use Illuminate\Support\Facades\DB;
-
-Route::get('/query', function(){
-    $users = DB::table('users')->where('id', '<', 8)->get();
-    dd($users);
+Route::group(['middleware' => 'verified'], function(){
+    Route::get('/home', 'HomeController@index')->name('home');
+    Route::resource('posts', 'PostController');
 });
