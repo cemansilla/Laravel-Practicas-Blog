@@ -1,6 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
+  @if(Session::has('message'))
+    <div class="container alert alert-warning">
+      {{ Session::get('message') }}
+    </div>
+  @endif
+
   <div class="container">
     @foreach($posts as $post)
       <div class="card mb-4">

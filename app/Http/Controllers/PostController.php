@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Http\Requests\UserFormRequest;
 use Auth;
+use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
@@ -97,6 +98,9 @@ class PostController extends Controller
      */
     public function update(UserFormRequest $request, Post $post)
     {
+        // Alternativa estándar de validación de permisos de acción
+        $this->authorize('update', $post);
+
         $post->title = $request->input('title');
         $post->content = $request->input('content');
 
@@ -115,8 +119,22 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        $post->delete();
+        /*
+        // Esta validación de permisos con gates, se trabajó luego con la política PostPolicy
+        $user = Auth::user();
 
+        if(Gate::forUser($user)->denies('delete-post', $post)){
+            return redirect()->back();
+        }
+        */
+
+        // Alternativa con políticas de validación de permisos de acción
+        if(Auth::user()->cant('delete', $post)){
+            return redirect()->route('posts.my')
+                    ->with('message', 'Permisos insuficientes para eliminar este post.');
+        }
+
+        $post->delete();
         return redirect()->route('posts.index');
     }
 
