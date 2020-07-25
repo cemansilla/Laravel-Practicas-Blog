@@ -1,4 +1,4 @@
-@extends('layouts._main')
+@extends('layouts.app')
 
 @section('content')
 <p>Cuerpo Welcome</p>

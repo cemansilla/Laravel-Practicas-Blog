@@ -6,6 +6,7 @@ use App\Models\Post;
 use Illuminate\Http\Request;
 use Validator;
 use App\Http\Requests\UserFormRequest;
+use Auth;
 
 class PostController extends Controller
 {
@@ -16,7 +17,8 @@ class PostController extends Controller
      */
     public function index(Request $request)
     {
-        $posts = Post::all();
+        //$posts = Post::all();
+        $posts = Post::paginate(10);
         return view('post.index', compact('posts'));
     }
 
@@ -57,11 +59,11 @@ class PostController extends Controller
     
         $post->title = $request->input('title');
         $post->content = $request->input('content');
-        $post->user_id = 1;
+        $post->user_id = $request->user()->id;
 
         $post->save();
 
-        return $post->id;
+        return redirect()->route('posts.show', ['post' => $post]);
     }
 
     /**
@@ -72,7 +74,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        //
+        return view('post.show', compact("post"));
     }
 
     /**
@@ -83,7 +85,7 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        //
+        return view('post.edit', compact('post'));
     }
 
     /**
@@ -93,9 +95,16 @@ class PostController extends Controller
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Post $post)
+    public function update(UserFormRequest $request, Post $post)
     {
-        //
+        $post->title = $request->input('title');
+        $post->content = $request->input('content');
+
+        $post->save();
+
+        return redirect()
+                ->route('posts.edit', ['post' => $post])
+                ->with('message', 'Post actualizado');
     }
 
     /**
@@ -106,6 +115,16 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $post->delete();
+
+        return redirect()->route('posts.index');
+    }
+
+    public function myPosts(Request $request)
+    {
+        //$posts = Auth::user()->posts;
+        $posts = Post::where('user_id', Auth::user()->id)->paginate(10);
+
+        return view('post.my', compact('posts'));
     }
 }

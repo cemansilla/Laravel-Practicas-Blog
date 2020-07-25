@@ -10,6 +10,13 @@
 
           <div class="d-flex justify-content-end ml-2">
             <a href="{{ route('posts.show', ['post' => $post]) }}" class="btn btn-primary">Read more</a>
+            <a href="{{ route('posts.edit', ['post' => $post]) }}" class="btn btn-primary ml-2">Edit</a>
+
+            <form action="{{ route('posts.destroy', ['post' => $post]) }}" method="post">
+              @method('DELETE')
+              @csrf
+              <button class="btn btn-danger ml-2">Delete</button>
+            </form>
           </div>
         </div>
       </div>
