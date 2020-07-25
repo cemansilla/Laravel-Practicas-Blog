@@ -8,6 +8,7 @@ use Tests\TestCase;
 
 use Illuminate\Support\Facades\Hash;
 use \App\User;
+use \App\Models\Post;
 
 class UserTest extends TestCase
 {
@@ -111,5 +112,36 @@ class UserTest extends TestCase
 		// Otra comprobación puede ser que el usuario insertado en DB tenga el nombre ingresado
 		$user = User::first();
 		$this->assertEquals($data['name'], $user->name);
+	}
+
+	/**     
+	 * Test de interfaz de creación de post
+	 * 
+	 * @test
+	 */
+	public function add_post(){
+		$this->assertEquals(0, Post::count());
+
+		// Creo un usuario
+		$user = create(User::class);
+
+		// Creo sesión
+		$this->actingAs($user);
+
+		// Test de acceso a sección (en este caso no es necesario ya que se repite en el siguiente assert)
+		$this->visit('/posts/create')
+			->assertResponseStatus(200);
+
+		// Test de creación
+		$data = [
+			'title' => 'Post title',
+			'content' => 'Loreom ipsum dolor sit amet'
+		];
+		$this->visit('/posts/create')
+			->type($data['title'], 'title')
+			->type($data['content'], 'content')
+			->press('Enviar');
+
+		$this->assertEquals(1, Post::count());
 	}
 }
