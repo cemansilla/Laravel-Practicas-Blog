@@ -14,6 +14,14 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+    /*
+    // Ejemplo de llamado de comandos Artisan (módulo 12.3)
+    Artisan::call('user:mail', [
+        'id' => 3,
+        '--flag' => 'Test'
+    ]);
+    */
+
     return view('welcome');
 })->middleware('language');
 
@@ -23,4 +31,11 @@ Route::group(['middleware' => 'verified'], function(){
     Route::get('/home', 'HomeController@index')->name('home');
     Route::resource('posts', 'PostController');
     Route::get('/my/posts', 'PostController@myPosts')->name('posts.my');
+});
+
+use App\Jobs\UserEmailWelcome;
+Route::get('/mail', function(){
+    UserEmailWelcome::dispatch(App\User::find(1));
+
+    return "Done!";
 });

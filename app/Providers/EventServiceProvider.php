@@ -15,9 +15,16 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
+        // Por defecto de Laravel
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        // Ejercicio módulo 12.2
+        // php artisan event:generate
+        'App\Events\UserRegistered' => [
+            'App\Listeners\SendWelcomeEmail',
+            //SendEmailVerificationNotification::class,
+        ]
     ];
 
     /**

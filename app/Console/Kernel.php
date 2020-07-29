@@ -5,6 +5,9 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
+use Illuminate\Support\Facades\Redis;
+use App\Models\Post;
+
 class Kernel extends ConsoleKernel
 {
     /**
@@ -24,6 +27,26 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->call(function(){
+            $keys = Redis::keys('*');
+
+            foreach($keys as $key){
+                $counter = Redis::get($key);
+
+                $a_key = explode(":", $key);
+
+                if(sizeof($a_key == 3)){
+                    $post_id = end($a_key);
+
+                    $post = Post::find($post_id);
+
+                    if($post){
+                        $post->views = $counter;
+                        $post->save();
+                    }
+                }
+            }
+        })->everyMinute(); 
         // $schedule->command('inspire')->hourly();
     }
 

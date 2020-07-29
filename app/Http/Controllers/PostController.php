@@ -8,6 +8,7 @@ use Validator;
 use App\Http\Requests\UserFormRequest;
 use Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Redis;
 
 class PostController extends Controller
 {
@@ -75,7 +76,20 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        return view('post.show', compact("post"));
+        /**
+         * Contador de vistas con Redis
+         * Módulo 12.5
+         */
+        $redis_post_key = 'post:views:'.$post->id; 
+        $counter = 0;
+        if(Redis::exists($redis_post_key)){
+            Redis::incr($redis_post_key);
+            $counter = Redis::get($redis_post_key);
+        }else{
+            Redis::set($redis_post_key, 0);
+        }
+
+        return view('post.show', compact("post", "counter"));
     }
 
     /**

@@ -9,6 +9,13 @@ use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
+/*
+// Movido al event listener por ejericio 12.2
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UserWelcome;
+*/
+use App\Events\UserRegistered;
+
 class RegisterController extends Controller
 {
     /*
@@ -64,10 +71,17 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+
+        // Esto se movió al event listener por ejercicio de módulo 12.2
+        //Mail::to($user->email)->send(new UserWelcome($user));
+
+        event(new UserRegistered($user));
+
+        return $user;
     }
 }
